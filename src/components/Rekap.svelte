@@ -1,256 +1,346 @@
 <script lang="ts">
 	import type { ItemOrGroup, Item } from '../lib/types';
-	import { formatRupiahString, unformatRupiah } from '../lib/formatRupiah';
 	import { printOnly } from '$lib/printUtils';
+	import { getLokasiLabel } from '$lib/lokasi';
+	import { formatRupiahString, unformatRupiah } from '$lib/formatRupiah';
 
 	export let inputs: ItemOrGroup[];
-	export let tanggal: string; // Kamu bisa kirim tanggal dari komponen induk
+	export let tanggal: string;
+
 	const isZero = (n: number | null | undefined) => (n ?? 0) === 0;
+	const removeYear = (s: string) => s.split('/').slice(0, 2).join('/');
 
-	let totalPenjualanRaw: number = 0;
-
-	let namaLokasi = '';
-
+	// Flatten
 	$: allItems = inputs.flatMap((entry) => (Array.isArray(entry) ? entry : [entry]));
 
-	// Kelompokkan berdasarkan tipe
-	$: groupedByTipe = (() => {
-		const result: Record<string, Item[]> = {};
-		for (const item of allItems) {
-			if (!result[item.tipe]) {
-				result[item.tipe] = [];
+	// Group by LOKASI -> TIPE
+	type TipeMap = Record<string, Item[]>;
+	type LokasiMap = Record<string, TipeMap>;
+
+	$: groupedByLokasi = allItems.reduce((acc, it) => {
+		const lokasi = it.lokasi ?? 'LAINNYA';
+		const tipe = it.tipe ?? 'LAINNYA';
+		acc[lokasi] ??= {};
+		(acc[lokasi][tipe] ??= []).push(it);
+		return acc;
+	}, {} as LokasiMap);
+
+	// Helpers subtotal
+	const subtotal = (items: Item[]) => items.reduce((s, it) => s + (it.harga ?? 0), 0);
+	const subtotalByType = (tm: TipeMap, tipe: string) => subtotal(tm[tipe] ?? []);
+
+	// ========================== PER-LOKASI INPUT ==========================
+	// angka murni untuk perhitungan
+	let totalPenjualanByLokasi: Record<string, number> = {};
+	// string tampilan untuk input (sudah diformat)
+	let displayByLokasi: Record<string, string> = {};
+
+	// Inisialisasi default: 0 untuk semua lokasi (angka & tampilan)
+	$: {
+		for (const lok of Object.keys(groupedByLokasi)) {
+			if (totalPenjualanByLokasi[lok] == null) {
+				totalPenjualanByLokasi[lok] = 0; // angka murni awal = 0
 			}
-			result[item.tipe].push(item);
+			if (displayByLokasi[lok] == null) {
+				displayByLokasi[lok] = '0'; // tampilan awal = "0"
+				// atau jika mau awali kosong:
+				// displayByLokasi[lok] = '';
+			}
 		}
-		return result;
-	})();
+	}
 
-	// Subtotal per tipe (kanan)
-	$: transferTotal =
-		groupedByTipe['TRANSFER']?.reduce((sum, item) => sum + (item.harga ?? 0), 0) ?? 0;
+	// Handler input: sanitasi → simpan angka → format tampilan
+	const handleInputTotalPenjualan = (lokasi: string, raw: string) => {
+		const angka = unformatRupiah(raw) ?? 0;
+		totalPenjualanByLokasi[lokasi] = angka;
+		displayByLokasi[lokasi] = formatRupiahString(String(angka));
+	};
 
-	$: returTotal = groupedByTipe['RETUR']?.reduce((sum, item) => sum + (item.harga ?? 0), 0) ?? 0;
-	$: ppiutangTotal =
-		groupedByTipe['P.PIUTANG']?.reduce((sum, item) => sum + (item.harga ?? 0), 0) ?? 0;
-	$: pettyCashTotal =
-		groupedByTipe['PETTY CASH']?.reduce((sum, item) => sum + (item.harga ?? 0), 0) ?? 0;
-	// TOTAL rekap kanan = TOTAL PENJUALAN (input) - TRANSFER - RETUR
-	$: totalRekap = totalPenjualanRaw - transferTotal - returTotal;
-	$: totalSetor = totalRekap - pettyCashTotal + ppiutangTotal;
+	// Rumus per-lokasi berdasarkan input user
+	$: totalRekapLokasi = (tm: TipeMap, lokasi: string) =>
+		totalPenjualanByLokasi[lokasi] - subtotalByType(tm, 'TRANSFER') - subtotalByType(tm, 'RETUR');
 
-	$: totalLokasiBMG = groupedByTipe['BMG'];
+	$: totalSetorLokasi = (tm: TipeMap, lokasi: string) =>
+		totalRekapLokasi(tm, lokasi) -
+		subtotalByType(tm, 'PETTY CASH') +
+		subtotalByType(tm, 'P.PIUTANG');
+
+	function handlePrintAll() {
+		// cetak seluruh rekapan
+		printOnly('rekap');
+	}
 </script>
 
-<input
-	type="text"
-	inputmode="numeric"
-	pattern="\d*"
-	placeholder="0"
-	value={formatRupiahString(String(totalPenjualanRaw))}
-	on:input={(e: Event & { currentTarget: HTMLInputElement }) => {
-		const target = e.currentTarget;
-		const raw = target.value;
-		const angka = unformatRupiah(raw) ?? 0;
-		totalPenjualanRaw = angka;
-	}}
-	class="w-full rounded-xl pl-8 text-right font-[Calibri] text-[12px]
-                     font-bold focus:ring-0 focus:outline-none print:pl-6 print:text-[14px]"
-/>
+<div
+	class="mx-auto mb-1 flex w-full max-w-6xl flex-col gap-2 px-4 md:flex-row md:items-center md:justify-between print:hidden"
+>
+	<h1 class="text-lg font-semibold tracking-tight text-gray-800">Preview Rekapan</h1>
 
-<input
-	type="text"
-	placeholder="Ketik nama lokasi"
-	bind:value={namaLokasi}
-	class="w-full rounded-md border px-3 py-[6px] text-sm shadow-sm"
-/>
-<button on:click={() => printOnly(`rekap`)}>Print</button>
+	<div class="flex flex-wrap items-center gap-2">
+		<button
+			on:click={handlePrintAll}
+			class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600
+         px-5 py-2.5 text-sm font-medium text-white shadow-md transition
+         hover:from-purple-700 hover:to-fuchsia-700
+         focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none active:scale-[0.99]
+         print:hidden"
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				class="h-4 w-4"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+			>
+				<path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12M9 22h6v-6H9v6z"
+				/>
+			</svg>
+			Cetak Semua Rekapan
+		</button>
+	</div>
+</div>
 
-<div class="flex flex-col gap-3" id={'rekap'}>
-	<h2 class="text-center font-[Calibri] text-[18px] font-bold uppercase">REKAPAN {namaLokasi}</h2>
-	<div class="flex gap-4">
-		<!-- KIRI: Tipe-tipe -->
-		<div class="flex w-full flex-col gap-4">
-			{#each Object.entries(groupedByTipe) as [tipe, items]}
-				<table
-					class="w-full table-auto border border-gray-400 font-[Calibri] text-[12px] font-bold"
-				>
-					<thead class="bg-gray-100">
-						<tr>
-							<th class="w-[70px] border px-2 py-1 text-center">TGL TF</th>
-							<th class="border px-2 py-1 text-center" colspan="3">{tipe}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each items as item, i}
+<div class="flex flex-col gap-3" id="rekap">
+	{#each Object.entries(groupedByLokasi) as [lokasi, tipeMap]}
+		<!-- id unik per lokasi untuk target print per lokasi -->
+		<section id={'rekap-' + lokasi} class="print:break-after-page">
+			<h2 class="mb-2 text-center font-[Calibri] text-[16px] font-bold uppercase">
+				REKAPAN {getLokasiLabel(lokasi)}
+			</h2>
+			<div class="flex gap-4">
+				<!-- KIRI: PER LOKASI -->
+				<div class="flex w-full flex-col gap-8">
+					<!-- Judul per lokasi -->
+					<div class="flex flex-col gap-3">
+						<!-- Loop tipe di dalam lokasi -->
+						{#each Object.entries(tipeMap).filter(([t]) => t !== 'TUNAI') as [tipe, items]}
+							<table class="w-full table-fixed border font-[Calibri] text-[12px] font-bold">
+								<colgroup>
+									<col class="w-[45px] print:w-[45px]" />
+									<!-- TGL -->
+									<col />
+									<!-- NAMA -->
+									<col class="w-[60px] print:w-[60px]" />
+									<!-- JL -->
+									<col class="w-[110px] print:w-[110px]" />
+									<!-- HARGA -->
+								</colgroup>
+
+								<thead>
+									<tr>
+										<th class="border px-2 py-1 text-center">TGL</th>
+										<th class="border px-2 py-1 text-center" colspan="3">{tipe}</th>
+									</tr>
+								</thead>
+
+								<tbody>
+									{#each items as item, i}
+										<tr>
+											{#if i === 0}
+												<td
+													class="border px-2 py-1 text-center align-top"
+													rowspan={items.length + 1}
+												>
+													{removeYear(tanggal)}
+												</td>
+											{/if}
+
+											<td class="truncate border px-2 py-1 text-center uppercase">
+												{item.nama}
+											</td>
+
+											<td class="border px-2 py-1 text-center whitespace-nowrap">
+												{item.jl}
+											</td>
+
+											<td class="border px-2 py-1">
+												<div class="flex min-w-0 items-center gap-1 px-1">
+													<span class="pr-1">Rp</span>
+													<span class="ml-auto truncate text-right whitespace-nowrap tabular-nums">
+														{(item.harga ?? 0).toLocaleString('id-ID')}
+													</span>
+												</div>
+											</td>
+										</tr>
+									{/each}
+
+									<!-- TOTAL per TIPE di lokasi ini -->
+									<tr class="font-semibold">
+										<td colspan="2" class="border px-2 py-1 text-center">TOTAL</td>
+										<td class="border px-2 py-1">
+											<div class="flex items-center gap-1 px-1">
+												<span class="pr-1">Rp</span>
+												<span class="ml-auto text-right whitespace-nowrap tabular-nums">
+													{items
+														.reduce((sum, it) => sum + (it.harga ?? 0), 0)
+														.toLocaleString('id-ID')}
+												</span>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						{/each}
+					</div>
+				</div>
+
+				<!-- KANAN: Tabel tambahan (PER LOKASI, bukan global) -->
+				<div class="w-[400px]">
+					<table class="w-full table-fixed border font-[Calibri] text-[12px] font-bold">
+						<colgroup>
+							<col class="w-[58%]" />
+							<col class="w-[42%]" />
+						</colgroup>
+						<tbody>
 							<tr>
-								{#if i === 0}
-									<td class="border px-2 py-1 text-center" rowspan={items.length + 1}>
-										{tanggal}
-									</td>
-								{/if}
-								<td class="border px-2 py-1 text-center uppercase">{item.nama}</td>
-								<td class="w-[90px] border px-2 py-1 text-center">{item.jl}</td>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap">
+									TOTAL PENJUALAN
+								</td>
+								<td class="border print:px-1 print:py-0.5">
+									<div class="relative flex min-w-0 items-center tabular-nums">
+										<!-- Prefix Rp: tidak menghalangi interaksi -->
+										<span
+											class="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 font-[Calibri] text-[12px] font-bold select-none print:left-0"
+										>
+											Rp
+										</span>
 
-								<!-- HARGA ITEM: Rp kiri, angka kanan -->
-								<td class="border px-2 py-1">
-									<div class="flex items-center">
-										<span>Rp</span>
-										<span class="ml-auto text-right">
-											{(item.harga ?? 0).toLocaleString('id-ID')}
+										<!-- INPUT: padding-left agar tidak nabrak Rp -->
+										<input
+											type="text"
+											inputmode="numeric"
+											autocomplete="off"
+											placeholder="0"
+											bind:value={displayByLokasi[lokasi]}
+											on:input={(e: Event & { currentTarget: HTMLInputElement }) =>
+												handleInputTotalPenjualan(lokasi, e.currentTarget.value)}
+											class="ml-auto w-full rounded-xl border border-gray-300 bg-white pr-2
+           pl-7 text-right font-[Calibri]
+           text-[12px] font-bold
+           focus:border-emerald-500 focus:ring-0 focus:outline-none
+           print:hidden"
+											aria-label="Total penjualan"
+										/>
+
+										<!-- Nilai saat print -->
+										<span class="ml-auto hidden text-right print:inline">
+											{displayByLokasi[lokasi]?.trim() || '0'}
 										</span>
 									</div>
 								</td>
 							</tr>
-						{/each}
 
-						<!-- TOTAL: Rp kiri, angka kanan -->
-						<tr class="bg-gray-100 font-bold">
-							<td colspan="2" class="border px-2 py-1 text-center">TOTAL</td>
-							<td class="border px-2 py-1">
-								<div class="flex items-center">
-									<span>Rp</span>
-									<span class="ml-auto text-right">
-										{items
-											.reduce((sum, item) => sum + (item.harga ?? 0), 0)
-											.toLocaleString('id-ID')}
-									</span>
-								</div>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			{/each}
-		</div>
+							<tr>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+									>TRANSFER</td
+								>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5">
+									{#if !isZero(subtotalByType(tipeMap, 'TRANSFER'))}
+										<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+											<span>Rp</span>
+											<span class="ml-auto truncate text-right">
+												{subtotalByType(tipeMap, 'TRANSFER').toLocaleString('id-ID')}
+											</span>
+										</div>
+									{:else}
+										<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
+									{/if}
+								</td>
+							</tr>
 
-		<!-- KANAN: Tabel tambahan (lebih rapat & anti-wrap saat print) -->
-		<div class="w-[300px]">
-			<table class="w-full table-fixed border border-gray-400 font-[Calibri] text-[12px] font-bold">
-				<colgroup>
-					<!-- kolom label -->
-					<col class="w-[58%]" />
-					<!-- kolom nilai -->
-					<col class="w-[42%]" />
-				</colgroup>
-				<tbody>
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap">
-							TOTAL PENJUALAN
-						</td>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							<div class="relative flex min-w-0 items-center whitespace-nowrap tabular-nums">
-								<span> Rp </span>
-								<span class="ml-auto truncate text-right">
-									{totalPenjualanRaw.toLocaleString('id-ID')}
-								</span>
-							</div>
-						</td>
-					</tr>
+							<tr>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+									>RETUR</td
+								>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5">
+									{#if !isZero(subtotalByType(tipeMap, 'RETUR'))}
+										<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+											<span>Rp</span>
+											<span class="ml-auto truncate text-right">
+												{subtotalByType(tipeMap, 'RETUR').toLocaleString('id-ID')}
+											</span>
+										</div>
+									{:else}
+										<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
+									{/if}
+								</td>
+							</tr>
 
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
-							>TRANSFER</td
-						>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							{#if !isZero(transferTotal)}
-								<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
-									<span>Rp</span>
-									<span class="ml-auto truncate text-right">
-										{transferTotal.toLocaleString('id-ID')}
-									</span>
-								</div>
-							{:else}
-								<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
-							{/if}
-						</td>
-					</tr>
+							<tr>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+									>SETOR</td
+								>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5">
+									<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+										<span>Rp</span>
+										<span class="ml-auto truncate text-right"
+											>{totalRekapLokasi(tipeMap, lokasi).toLocaleString('id-ID')}</span
+										>
+									</div>
+								</td>
+							</tr>
 
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap">RETUR</td>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							{#if !isZero(returTotal)}
-								<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
-									<span>Rp</span>
-									<span class="ml-auto truncate text-right">
-										{returTotal.toLocaleString('id-ID')}
-									</span>
-								</div>
-							{:else}
-								<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
-							{/if}
-						</td>
-					</tr>
+							<tr>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+									>P.PIUTANG</td
+								>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5">
+									{#if !isZero(subtotalByType(tipeMap, 'P.PIUTANG'))}
+										<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+											<span>Rp</span>
+											<span class="ml-auto truncate text-right">
+												{subtotalByType(tipeMap, 'P.PIUTANG').toLocaleString('id-ID')}
+											</span>
+										</div>
+									{:else}
+										<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
+									{/if}
+								</td>
+							</tr>
 
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap">TOTAL</td>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							{#if !isZero(totalRekap)}
-								<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
-									<span>Rp</span>
-									<span class="ml-auto truncate text-right">
-										{totalRekap.toLocaleString('id-ID')}
-									</span>
-								</div>
-							{:else}
-								<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
-							{/if}
-						</td>
-					</tr>
+							<tr>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+									>PETTY CASH</td
+								>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5">
+									{#if !isZero(subtotalByType(tipeMap, 'PETTY CASH'))}
+										<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+											<span>Rp</span>
+											<span class="ml-auto truncate text-right">
+												{subtotalByType(tipeMap, 'PETTY CASH').toLocaleString('id-ID')}
+											</span>
+										</div>
+									{:else}
+										<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
+									{/if}
+								</td>
+							</tr>
 
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
-							>P.PIUTANG</td
-						>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							{#if !isZero(ppiutangTotal)}
-								<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
-									<span>Rp</span>
-									<span class="ml-auto truncate text-right">
-										{ppiutangTotal.toLocaleString('id-ID')}
-									</span>
-								</div>
-							{:else}
-								<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
-							{/if}
-						</td>
-					</tr>
-
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
-							>PETTY CASH</td
-						>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							{#if !isZero(pettyCashTotal)}
-								<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
-									<span>Rp</span>
-									<span class="ml-auto truncate text-right">
-										{pettyCashTotal.toLocaleString('id-ID')}
-									</span>
-								</div>
-							{:else}
-								<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
-							{/if}
-						</td>
-					</tr>
-
-					<tr>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
-							>TOTAL SETOR</td
-						>
-						<td class="border px-2 py-1 print:px-1 print:py-0.5">
-							{#if !isZero(totalSetor)}
-								<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
-									<span>Rp</span>
-									<span class="ml-auto truncate text-right">
-										{totalSetor.toLocaleString('id-ID')}
-									</span>
-								</div>
-							{:else}
-								<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
-							{/if}
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
+							<tr>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+									>TOTAL SETOR</td
+								>
+								<td class="border px-2 py-1 print:px-1 print:py-0.5">
+									{#if !isZero(totalSetorLokasi(tipeMap, lokasi))}
+										<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+											<span>Rp</span>
+											<span class="ml-auto truncate text-right">
+												{totalSetorLokasi(tipeMap, lokasi).toLocaleString('id-ID')}
+											</span>
+										</div>
+									{:else}
+										<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
+									{/if}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+	{/each}
 </div>

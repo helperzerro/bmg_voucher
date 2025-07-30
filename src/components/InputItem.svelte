@@ -11,12 +11,38 @@
 	export let hapusInput: (index: number) => void;
 </script>
 
-<div class="mb-2 flex items-center justify-between font-semibold">
-	<span>Transfer {idx + 1}</span>
+<div class="mb-3 flex items-center justify-between">
+	<div class="inline-flex items-center gap-2">
+		<h3 class="text-sm font-semibold tracking-wide text-gray-800">Transfer</h3>
+		<span
+			class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700"
+		>
+			{idx + 1}
+		</span>
+	</div>
+
+	<!-- "Hapus" terdorong ke kanan -->
 	<button
 		on:click={() => hapusInput(idx)}
-		class="rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
+		class="ml-auto inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white
+           shadow-sm ring-1 ring-red-600/10 transition ring-inset hover:bg-red-700
+           focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none active:scale-[0.99]"
+		aria-label="Hapus baris ini"
 	>
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			class="h-4 w-4"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+		>
+			<path
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="2"
+				d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a2 2 0 012-2h2a2 2 0 012 2v2"
+			/>
+		</svg>
 		Hapus
 	</button>
 </div>
@@ -24,10 +50,10 @@
 <div class="mb-4 flex gap-3">
 	<input
 		type="text"
-		placeholder="Nama"
+		placeholder="NAMA PERUSAHAAN / PELANGGAN"
 		value={item.nama}
 		on:input={(e) => update(idx, 'nama', (e.target! as HTMLInputElement).value)}
-		class="w-64 rounded-r border border-gray-300 px-2 py-1 text-sm uppercase"
+		class="w-80 rounded border border-gray-300 px-2 py-1 text-sm uppercase focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 	/>
 	<div class="flex items-center">
 		<span class="rounded-l border border-r-0 border-gray-300 bg-gray-100 px-2 py-1 text-sm">JL</span
@@ -36,7 +62,7 @@
 			type="text"
 			inputmode="numeric"
 			pattern="[0-9]*"
-			placeholder="123"
+			placeholder="-"
 			value={item.jl.replace(/^JL/, '')}
 			on:keypress={(e) => {
 				if (!/[0-9]/.test(e.key)) e.preventDefault();
@@ -45,7 +71,7 @@
 				const angka = (e.target! as HTMLInputElement).value.replace(/\D/g, '');
 				update(idx, 'jl', 'JL' + angka);
 			}}
-			class="w-20 rounded-r border border-gray-300 px-2 py-1 text-sm"
+			class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		/>
 	</div>
 
@@ -55,7 +81,7 @@
 		<input
 			type="text"
 			inputmode="numeric"
-			placeholder="Harga"
+			placeholder="-"
 			pattern="\d*"
 			value={formatRupiahString(String(item.harga ?? ''))}
 			on:keydown={(e) => {
@@ -70,14 +96,14 @@
 				update(idx, 'harga', angka);
 				target.value = formatRupiahString(raw);
 			}}
-			class="w-28 rounded-r border border-gray-300 px-2 py-1 text-sm"
+			class="w-28 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		/>
 	</div>
 
 	<select
 		bind:value={item.tipe}
 		on:change={(e) => update(idx, 'tipe', (e.target as HTMLSelectElement).value as Item['tipe'])}
-		class="focus:ring-opacity-50 w-[185px] rounded-md border border-gray-300 px-3 py-[6px] text-sm shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+		class="focus:ring-opacity-50 w-[185px] rounded-md border border-gray-300 px-3 py-[6px] text-sm shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 	>
 		{#each tipeList.filter((tipe) => tipe !== item.tipe) as tipe}
 			<option value={tipe}>{tipe.charAt(0).toUpperCase() + tipe.slice(1)}</option>
@@ -93,7 +119,7 @@
 		bind:value={item.lokasi}
 		on:change={(e) =>
 			update(idx, 'lokasi', (e.target as HTMLSelectElement).value as Item['lokasi'])}
-		class="w-[90px] rounded-md border border-gray-300 px-3 py-[6px] text-sm shadow-sm"
+		class="w-[90px] rounded-md border border-gray-300 px-3 py-[6px] text-sm shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 	>
 		<!-- Menampilkan opsi selain yang sedang dipilih -->
 		{#each lokasiList.filter((lokasi) => lokasi !== item.lokasi) as lokasi}

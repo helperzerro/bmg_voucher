@@ -15,21 +15,41 @@
 	export let onPrint: (id: string) => void;
 </script>
 
-<button on:click={() => onPrint(`voucher-${index}`)}>Print Voucher {index + 1}</button>
-<div
-	id={'voucher-' + index}
-	class="mt-10 overflow-x-auto rounded border border-gray-300 font-[Calibri]"
+<button
+	on:click={() => onPrint(`voucher-${index}`)}
+	class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium
+         text-slate-700 shadow-sm transition hover:bg-slate-50
+         focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:outline-none active:scale-[0.99]
+         print:hidden"
 >
-	<table class="table-auto border-collapse text-[40px]">
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		class="h-4 w-4"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+	>
+		<path
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			stroke-width="2"
+			d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12M9 22h6v-6H9v6z"
+		/>
+	</svg>
+	Print Voucher {index + 1}
+</button>
+
+<div id={'voucher-' + index} class="mt-1 overflow-x-auto rounded font-[Calibri]">
+	<table class="table-auto border-collapse">
 		<thead class="text-left">
 			<tr>
-				<th class="w-[850px] border pl-2 text-[36px] font-bold" colspan="8">{group[0].lokasi}</th>
+				<th class="w-[850px] pl-2 text-[28px] font-bold" colspan="8">{group[0].lokasi}</th>
 			</tr>
 		</thead>
 
-		<tbody class="border text-[20px]">
+		<tbody class="border text-[18px]">
 			<tr>
-				<td class="w-[600px] pl-2 text-[26px] font-bold" rowspan="2" colspan="6">
+				<td class="w-[600px] pl-2 text-[20px] font-bold" rowspan="2" colspan="6">
 					VOUCHER <span
 						>{['RETUR', 'PETTY CASH'].includes(group[0].tipe) ? 'PENGELUARAN' : 'PENERIMAAN'}</span
 					> KAS / BANK
@@ -66,8 +86,14 @@
 			</tr>
 
 			<tr>
-				<td class="w-[60px] text-center">Rp.</td>
-				<td class="w-[130px]">{total.toLocaleString('id-ID')}</td>
+				<td colspan="2" class="w-[190px]">
+					<div class="flex items-center">
+						<span class="pl-1">Rp</span>
+						<span class="ml-auto pr-10 text-right tabular-nums">
+							{total.toLocaleString('id-ID')}
+						</span>
+					</div>
+				</td>
 				<td colspan="6" class="w-[660px] border pl-2">
 					{terbilang(total)}
 				</td>
