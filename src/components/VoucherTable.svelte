@@ -105,7 +105,7 @@
 				<td class="w-[260px] border text-center" colspan="2">PERKIRAAN DIKREDIT</td>
 			</tr>
 
-			{#each Array(4) as _}
+			{#each Array(6) as _}
 				<tr>
 					<td colspan="4" class="w-[340px] border-x">&nbsp;</td>
 					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
@@ -125,7 +125,7 @@
 				</tr>
 			{/each}
 
-			{#each Array(4) as _}
+			{#each Array(6) as _}
 				<tr>
 					<td colspan="4" class="w-[340px] border-x">&nbsp;</td>
 					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
