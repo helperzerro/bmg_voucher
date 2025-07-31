@@ -47,7 +47,7 @@
 			</tr>
 		</thead>
 
-		<tbody class="border text-[18px]">
+		<tbody class="border text-[16px]">
 			<tr>
 				<td class="w-[600px] pl-2 text-[20px] font-bold" rowspan="2" colspan="6">
 					VOUCHER <span
