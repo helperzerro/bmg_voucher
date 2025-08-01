@@ -1,5 +1,6 @@
 <!-- src/lib/components/VoucherTable.svelte -->
 <script lang="ts">
+	import { formatTanggalIndo } from '$lib/formatTanggal';
 	import { terbilang } from '../lib/terbilang';
 
 	export let group: {
@@ -7,9 +8,9 @@
 		total: number | null;
 		tipe: 'TUNAI' | 'TRANSFER' | 'RETUR' | 'PETTY CASH' | 'P.PIUTANG' | 'P.PIUTANG TRANSFER';
 		lokasi: string;
+		tanggal: string;
 	}[];
 
-	export let tanggalDisplay: string;
 	export let total: number;
 	export let index: number;
 	export let onPrint: (id: string) => void;
@@ -47,7 +48,7 @@
 			</tr>
 		</thead>
 
-		<tbody class="border text-[18px]">
+		<tbody class="border text-[16px]">
 			<tr>
 				<td class="w-[600px] pl-2 text-[20px] font-bold" rowspan="2" colspan="6">
 					VOUCHER <span
@@ -68,7 +69,7 @@
 					<div class="flex items-start">
 						<span class="min-w-[70px]">Tanggal</span>
 						<span class="mr-2">:</span>
-						<span>{tanggalDisplay}</span>
+						<span>{formatTanggalIndo(group[0].tanggal)}</span>
 					</div>
 				</td>
 			</tr>
@@ -105,7 +106,7 @@
 				<td class="w-[260px] border text-center" colspan="2">PERKIRAAN DIKREDIT</td>
 			</tr>
 
-			{#each Array(4) as _}
+			{#each Array(6) as _}
 				<tr>
 					<td colspan="4" class="w-[340px] border-x">&nbsp;</td>
 					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
@@ -125,7 +126,7 @@
 				</tr>
 			{/each}
 
-			{#each Array(4) as _}
+			{#each Array(6) as _}
 				<tr>
 					<td colspan="4" class="w-[340px] border-x">&nbsp;</td>
 					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>

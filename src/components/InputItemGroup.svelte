@@ -1,6 +1,10 @@
 <script lang="ts">
 	import type { Item } from '../lib/types';
 	import { formatRupiahString, unformatRupiah } from '../lib/formatRupiah';
+	import { lokasiLabels } from '../lib/lokasi';
+	import { onMount } from 'svelte';
+	import flatpickr from 'flatpickr';
+	import 'flatpickr/dist/flatpickr.min.css';
 
 	export let input: Item[];
 	export let idx: number;
@@ -15,7 +19,31 @@
 	export let tambahItemKeGrup: (index: number) => void;
 	export let hapusInput: (index: number) => void;
 
-	import { lokasiLabels } from '../lib/lokasi';
+	let dateInputEl: HTMLInputElement;
+
+	onMount(() => {
+		if (input.length > 0) {
+			// Default ke hari ini jika belum di-set
+			if (!input[0].tanggal) {
+				const now = new Date();
+				const dd = String(now.getDate()).padStart(2, '0');
+				const mm = String(now.getMonth() + 1).padStart(2, '0');
+				const yyyy = now.getFullYear();
+				const todayStr = `${dd}/${mm}/${yyyy}`;
+				updateItemInGroup(idx, 0, 'tanggal', todayStr);
+			}
+
+			flatpickr(dateInputEl, {
+				dateFormat: 'd/m/Y',
+				defaultDate: input[0].tanggal,
+				onChange: (_, dateStr) => {
+					input.forEach((_, gidx) => {
+						updateItemInGroup(idx, gidx, 'tanggal', dateStr);
+					});
+				}
+			});
+		}
+	});
 </script>
 
 <div class="mb-3 flex items-center gap-2">
@@ -66,7 +94,7 @@
 <div class="mb-4 rounded p-4">
 	<div class="mb-2 flex items-center justify-between font-semibold">
 		<div class="inline-flex items-center gap-2">
-			<h3 class="text-sm font-semibold tracking-wide text-gray-800">Transfer</h3>
+			<h3 class="text-sm font-semibold text-emerald-700">Transfer</h3>
 			<span
 				class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700"
 			>
@@ -179,5 +207,23 @@
 				{input[0].lokasi}
 			</option>
 		</select>
+	{/if}
+
+	<!-- Bagian tanggal pakai flatpickr saja -->
+	{#if input.length > 0}
+		<div class="mt-2">
+			<input
+				type="text"
+				placeholder="Pilih tanggal"
+				bind:this={dateInputEl}
+				value={input[0].tanggal ??
+					new Date().toLocaleDateString('id-ID', {
+						day: '2-digit',
+						month: '2-digit',
+						year: 'numeric'
+					})}
+				class="rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+			/>
+		</div>
 	{/if}
 </div>

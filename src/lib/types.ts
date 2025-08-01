@@ -7,6 +7,7 @@ export type Item = {
 	harga: number | null;
 	tipe: 'TUNAI' | 'TRANSFER' | 'RETUR' | 'PETTY CASH' | 'P.PIUTANG' | 'P.PIUTANG TRANSFER';
 	lokasi: keyof typeof lokasiLabels;
+	tanggal: string;
 };
 
 export type ItemOrGroup = Item | Item[];
@@ -15,7 +16,8 @@ export type Row = {
 	keteranganTransaksi: string;
 	total: number | null;
 	tipe: 'TUNAI' | 'TRANSFER' | 'RETUR' | 'PETTY CASH' | 'P.PIUTANG' | 'P.PIUTANG TRANSFER';
-	lokasi: string; // sekarang ini label panjang
+	lokasi: string;
+	tanggal: string;
 };
 
 export const tipeList: Item['tipe'][] = [

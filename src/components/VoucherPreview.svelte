@@ -2,14 +2,15 @@
 	import VoucherTable from './VoucherTable.svelte';
 	import { printOnly, printAll } from '../lib/printUtils';
 
+	import 'flatpickr/dist/flatpickr.min.css';
+
 	export let rows: {
 		keteranganTransaksi: string;
 		total: number | null;
 		tipe: 'TUNAI' | 'TRANSFER' | 'RETUR' | 'PETTY CASH' | 'P.PIUTANG' | 'P.PIUTANG TRANSFER';
 		lokasi: string;
+		tanggal: string;
 	}[][];
-
-	export let tanggalDisplay: string;
 
 	$: totalGroups = rows.map((group) => group.reduce((sum, row) => sum + (row.total ?? 0), 0));
 
@@ -58,7 +59,7 @@
              print:shadow-none"
 		>
 			<!-- Komponen voucher -->
-			<VoucherTable {group} {tanggalDisplay} total={totalGroups[i]} index={i} onPrint={printOnly} />
+			<VoucherTable {group} total={totalGroups[i]} index={i} onPrint={printOnly} />
 		</section>
 	{/each}
 </div>

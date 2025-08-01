@@ -5,10 +5,8 @@
 	import { formatRupiahString, unformatRupiah } from '$lib/formatRupiah';
 
 	export let inputs: ItemOrGroup[];
-	export let tanggal: string;
 
 	const isZero = (n: number | null | undefined) => (n ?? 0) === 0;
-	const removeYear = (s: string) => s.split('/').slice(0, 2).join('/');
 
 	// Flatten
 	$: allItems = inputs.flatMap((entry) => (Array.isArray(entry) ? entry : [entry]));
@@ -68,6 +66,22 @@
 	function handlePrintAll() {
 		// cetak seluruh rekapan
 		printOnly('rekap');
+	}
+
+	// Group items by tanggal (per tipe)
+	function groupByTanggal(items: Item[]) {
+		const map = new Map<string, Item[]>();
+		for (const item of items) {
+			const tanggal = item.tanggal ?? '';
+			if (!map.has(tanggal)) {
+				map.set(tanggal, []);
+			}
+			map.get(tanggal)!.push(item);
+		}
+		return Array.from(map.entries()).map(([tanggal, items]) => ({
+			tanggal,
+			items
+		}));
 	}
 </script>
 
@@ -138,39 +152,35 @@
 								</thead>
 
 								<tbody>
-									{#each items as item, i}
-										<tr>
-											{#if i === 0}
-												<td
-													class="border px-2 py-1 text-center align-top"
-													rowspan={items.length + 1}
-												>
-													{removeYear(tanggal)}
+									{#each groupByTanggal(items) as group}
+										{#each group.items as item, index}
+											<tr>
+												{#if index === 0}
+													<td
+														class="border px-2 py-1 text-center align-top"
+														rowspan={group.items.length}
+													>
+														{group.tanggal.split('/').slice(0, 2).join('/')}
+													</td>
+												{/if}
+												<td class="truncate border px-2 py-1 text-center uppercase">{item.nama}</td>
+												<td class="border px-2 py-1 text-center whitespace-nowrap">{item.jl}</td>
+												<td class="border px-2 py-1">
+													<div class="flex min-w-0 items-center gap-1 px-1">
+														<span class="pr-1">Rp</span>
+														<span
+															class="ml-auto truncate text-right whitespace-nowrap tabular-nums"
+														>
+															{(item.harga ?? 0).toLocaleString('id-ID')}
+														</span>
+													</div>
 												</td>
-											{/if}
-
-											<td class="truncate border px-2 py-1 text-center uppercase">
-												{item.nama}
-											</td>
-
-											<td class="border px-2 py-1 text-center whitespace-nowrap">
-												{item.jl}
-											</td>
-
-											<td class="border px-2 py-1">
-												<div class="flex min-w-0 items-center gap-1 px-1">
-													<span class="pr-1">Rp</span>
-													<span class="ml-auto truncate text-right whitespace-nowrap tabular-nums">
-														{(item.harga ?? 0).toLocaleString('id-ID')}
-													</span>
-												</div>
-											</td>
-										</tr>
+											</tr>
+										{/each}
 									{/each}
-
 									<!-- TOTAL per TIPE di lokasi ini -->
 									<tr class="font-semibold">
-										<td colspan="2" class="border px-2 py-1 text-center">TOTAL</td>
+										<td colspan="3" class="border px-2 py-1 text-center">TOTAL</td>
 										<td class="border px-2 py-1">
 											<div class="flex items-center gap-1 px-1">
 												<span class="pr-1">Rp</span>
