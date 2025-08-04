@@ -40,7 +40,7 @@
 				totalPenjualanByLokasi[lok] = 0; // angka murni awal = 0
 			}
 			if (displayByLokasi[lok] == null) {
-				displayByLokasi[lok] = '0'; // tampilan awal = "0"
+				displayByLokasi[lok] = ''; // tampilan awal = "0"
 				// atau jika mau awali kosong:
 				// displayByLokasi[lok] = '';
 			}
@@ -131,7 +131,7 @@
 					<!-- Judul per lokasi -->
 					<div class="flex flex-col gap-3">
 						<!-- Loop tipe di dalam lokasi -->
-						{#each Object.entries(tipeMap).filter(([t]) => t !== 'TUNAI') as [tipe, items]}
+						{#each Object.entries(tipeMap).filter(([t]) => !['TUNAI', 'PETTY CASH'].includes(t)) as [tipe, items]}
 							<table class="w-full table-fixed border font-[Calibri] text-[12px] font-bold">
 								<colgroup>
 									<col class="w-[45px] print:w-[45px]" />

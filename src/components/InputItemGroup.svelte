@@ -94,12 +94,14 @@
 <div class="mb-4 rounded p-4">
 	<div class="mb-2 flex items-center justify-between font-semibold">
 		<div class="inline-flex items-center gap-2">
-			<h3 class="text-sm font-semibold text-emerald-700">Transfer</h3>
 			<span
 				class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700"
 			>
 				{idx + 1}
 			</span>
+			<h3 class="text-sm font-semibold text-emerald-700">
+				{input[0].tipe.charAt(0).toUpperCase() + input[0].tipe.slice(1).toLowerCase()}
+			</h3>
 		</div>
 	</div>
 
@@ -132,7 +134,12 @@
 					}}
 					on:input={(e) => {
 						const angka = (e.target! as HTMLInputElement).value.replace(/\D/g, '');
-						updateItemInGroup(idx, gidx, 'jl', 'JL' + angka);
+						const tipe = groupItem.tipe?.toUpperCase();
+						if (angka === '' && (tipe === 'TUNAI' || tipe === 'PETTY CASH')) {
+							updateItemInGroup(idx, gidx, 'jl', '');
+						} else {
+							updateItemInGroup(idx, gidx, 'jl', 'JL' + angka);
+						}
 					}}
 					class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 				/>

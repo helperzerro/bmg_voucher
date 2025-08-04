@@ -37,12 +37,14 @@
 <!-- Header -->
 <div class="mb-2 flex items-center justify-between">
 	<div class="flex items-center gap-2">
-		<h3 class="text-sm font-semibold text-emerald-700">Transfer</h3>
 		<span
 			class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700"
 		>
 			{idx + 1}
 		</span>
+		<h3 class="text-sm font-semibold text-emerald-700">
+			{item.tipe.charAt(0).toUpperCase() + item.tipe.slice(1).toLowerCase()}
+		</h3>
 	</div>
 	<button
 		on:click={() => hapusInput(idx)}
@@ -90,7 +92,12 @@
 			on:keypress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
 			on:input={(e) => {
 				const angka = (e.target! as HTMLInputElement).value.replace(/\D/g, '');
-				update(idx, 'jl', 'JL' + angka);
+				const tipe = item.tipe?.toUpperCase();
+				if (angka === '' && (tipe === 'TUNAI' || tipe === 'PETTY CASH')) {
+					update(idx, 'jl', '');
+				} else {
+					update(idx, 'jl', 'JL' + angka);
+				}
 			}}
 			class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		/>

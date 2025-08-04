@@ -57,13 +57,23 @@
 	}
 
 	// Hitung index voucher pengeluaran
-	$: voucherPengeluaranIndex = inputs.reduce((acc: number[], entry, i) => {
-		const items = Array.isArray(entry) ? entry : [entry];
-		if (items.some((item) => item.tipe === 'RETUR' || item.tipe === 'PETTY CASH')) {
-			acc.push(i + 1);
+	$: voucherPengeluaranIndex = (() => {
+		const hasil: number[] = [];
+		let posisiDariBawah = 1;
+
+		for (let i = inputs.length - 1; i >= 0; i--) {
+			const entry = inputs[i];
+			const items = Array.isArray(entry) ? entry : [entry];
+
+			if (items.some((item) => item.tipe === 'RETUR' || item.tipe === 'PETTY CASH')) {
+				hasil.unshift(posisiDariBawah);
+			}
+
+			posisiDariBawah++;
 		}
-		return acc;
-	}, []);
+
+		return hasil.sort((a, b) => a - b);
+	})();
 
 	// Buat voucher (validasi + proses data)
 	function buatVoucher() {
@@ -71,8 +81,15 @@
 
 		const isValid = inputs.every((entry) =>
 			Array.isArray(entry)
-				? entry.every((item) => item.nama.trim() && item.jl.trim() && item.harga !== null)
-				: entry.nama.trim() && entry.jl.trim() && entry.harga !== null
+				? entry.every(
+						(item) =>
+							item.nama.trim() &&
+							(item.tipe === 'TUNAI' || item.tipe === 'PETTY CASH' || item.jl.trim()) &&
+							item.harga !== null
+					)
+				: entry.nama.trim() &&
+					(entry.tipe === 'TUNAI' || entry.tipe === 'PETTY CASH' || entry.jl.trim()) &&
+					entry.harga !== null
 		);
 
 		if (!isValid) {
@@ -85,9 +102,15 @@
 		rows = inputs.map((entry) => {
 			const items = Array.isArray(entry) ? entry : [entry];
 			return items
-				.filter((item) => !!item.nama && !!item.jl)
+				.filter(
+					(item) => item.nama && (item.tipe === 'TUNAI' || item.tipe === 'PETTY CASH' || item.jl)
+				)
+
 				.map((item) => ({
-					keteranganTransaksi: `${item.nama} (${item.jl})`,
+					keteranganTransaksi:
+						item.tipe === 'TUNAI' || item.tipe === 'PETTY CASH' || !item.jl || item.jl === 'JL'
+							? item.nama
+							: `${item.nama} (${item.jl})`,
 					total: item.harga,
 					tipe: item.tipe,
 					lokasi: lokasiLabels[item.lokasi],
