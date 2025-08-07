@@ -125,7 +125,7 @@
 			<h2 class="mb-2 text-center font-[Calibri] text-[16px] font-bold uppercase">
 				REKAPAN {getLokasiLabel(lokasi)}
 			</h2>
-			<div class="flex gap-4">
+			<div class="flex gap-10">
 				<!-- KIRI: PER LOKASI -->
 				<div class="flex w-full flex-col gap-8">
 					<!-- Judul per lokasi -->
@@ -282,7 +282,7 @@
 
 							<tr>
 								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
-									>SETOR</td
+									>TOTAL</td
 								>
 								<td class="border px-2 py-1 print:px-1 print:py-0.5">
 									<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
