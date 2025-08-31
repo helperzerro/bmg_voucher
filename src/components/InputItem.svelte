@@ -12,6 +12,7 @@
 	export let lokasiList: string[];
 	export let update: (index: number, key: keyof Item, value: string | number | null) => void;
 	export let hapusInput: (index: number) => void;
+	export let onInputChange;
 
 	onMount(() => {
 		// Jika belum ada tanggal, isi default ke tanggal hari ini (format d/m/Y)
@@ -76,7 +77,10 @@
 		type="text"
 		placeholder="NAMA PERUSAHAAN / PELANGGAN"
 		value={item.nama}
-		on:input={(e) => update(idx, 'nama', (e.target! as HTMLInputElement).value)}
+		on:input={(e) => {
+			update(idx, 'nama', (e.target! as HTMLInputElement).value);
+			onInputChange();
+		}}
 		class="w-80 rounded border border-gray-300 px-2 py-1 text-sm uppercase focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 	/>
 
@@ -99,6 +103,7 @@
 				} else {
 					update(idx, 'jl', 'JL' + angka);
 				}
+				onInputChange();
 			}}
 			class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		/>
@@ -121,6 +126,7 @@
 				const angka = unformatRupiah(raw);
 				update(idx, 'harga', angka);
 				target.value = formatRupiahString(raw);
+				onInputChange();
 			}}
 			class="w-28 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		/>
@@ -132,7 +138,10 @@
 	<!-- Tipe -->
 	<select
 		bind:value={item.tipe}
-		on:change={(e) => update(idx, 'tipe', (e.target as HTMLSelectElement).value as Item['tipe'])}
+		on:change={(e) => {
+			update(idx, 'tipe', (e.target as HTMLSelectElement).value as Item['tipe']);
+			onInputChange();
+		}}
 		class="w-[185px] rounded-md border border-gray-300 px-3 py-1 text-sm shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 	>
 		<option value={item.tipe} selected disabled>{item.tipe}</option>
@@ -144,8 +153,10 @@
 	<!-- Lokasi -->
 	<select
 		bind:value={item.lokasi}
-		on:change={(e) =>
-			update(idx, 'lokasi', (e.target as HTMLSelectElement).value as Item['lokasi'])}
+		on:change={(e) => {
+			update(idx, 'lokasi', (e.target as HTMLSelectElement).value as Item['lokasi']);
+			onInputChange();
+		}}
 		class="w-[90px] rounded-md border border-gray-300 px-3 py-1 text-sm shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 	>
 		<option value={item.lokasi} selected disabled>{item.lokasi}</option>
@@ -159,6 +170,9 @@
 		id={'tanggal-' + idx}
 		type="text"
 		placeholder="dd/mm/yyyy"
+		on:change={(e) => {
+			onInputChange();
+		}}
 		value={item.tanggal ??
 			new Date().toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
 		class="w-40 rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"

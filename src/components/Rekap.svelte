@@ -61,7 +61,8 @@
 	$: totalSetorLokasi = (tm: TipeMap, lokasi: string) =>
 		totalRekapLokasi(tm, lokasi) -
 		subtotalByType(tm, 'PETTY CASH') +
-		subtotalByType(tm, 'P.PIUTANG');
+		subtotalByType(tm, 'P.PIUTANG') +
+		subtotalByType(tm, 'ONGKIR');
 
 	function handlePrintAll() {
 		// cetak seluruh rekapan
@@ -126,7 +127,7 @@
 </div>
 
 <div class="flex flex-col gap-3" id="rekap">
-	{#each Object.entries(groupedByLokasi) as [lokasi, tipeMap]}
+	{#each Object.entries(groupedByLokasi).filter( ([lokasi, tipeMap]) => Object.keys(tipeMap).some((t) => !['TUNAI', 'PETTY CASH'].includes(t)) ) as [lokasi, tipeMap]}
 		<!-- id unik per lokasi untuk target print per lokasi -->
 		<section id={'rekap-' + lokasi} class="print:break-after-page">
 			<h2 class="mb-2 text-center font-[Calibri] text-[16px] font-bold uppercase">
@@ -138,7 +139,7 @@
 					<!-- Judul per lokasi -->
 					<div class="flex flex-col gap-3">
 						<!-- Loop tipe di dalam lokasi -->
-						{#each Object.entries(tipeMap).filter(([t]) => !['TUNAI', 'PETTY CASH'].includes(t)) as [tipe, items]}
+						{#each Object.entries(tipeMap).filter(([t]) => !['TUNAI', 'PETTY CASH', 'ONGKIR'].includes(t)) as [tipe, items]}
 							<table class="w-full table-fixed border font-[Calibri] text-[12px] font-bold">
 								<colgroup>
 									<col class="w-[45px] print:w-[45px]" />
@@ -336,6 +337,27 @@
 									{/if}
 								</td>
 							</tr>
+
+							<!-- ONGKIR -->
+							{#if subtotalByType(tipeMap, 'ONGKIR') > 0}
+								<tr>
+									<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"
+										>ONGKIR</td
+									>
+									<td class="border px-2 py-1 print:px-1 print:py-0.5">
+										{#if !isZero(subtotalByType(tipeMap, 'ONGKIR'))}
+											<div class="flex min-w-0 items-center whitespace-nowrap tabular-nums">
+												<span>Rp</span>
+												<span class="ml-auto truncate text-right">
+													{subtotalByType(tipeMap, 'ONGKIR').toLocaleString('id-ID')}
+												</span>
+											</div>
+										{:else}
+											<div class="flex items-center"><span class="ml-auto text-right">-</span></div>
+										{/if}
+									</td>
+								</tr>
+							{/if}
 
 							<tr>
 								<td class="border px-2 py-1 print:px-1 print:py-0.5 print:whitespace-nowrap"

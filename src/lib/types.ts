@@ -5,7 +5,14 @@ export type Item = {
 	nama: string;
 	jl: string;
 	harga: number | null;
-	tipe: 'TUNAI' | 'TRANSFER' | 'RETUR' | 'PETTY CASH' | 'P.PIUTANG' | 'P.PIUTANG TRANSFER';
+	tipe:
+		| 'TUNAI'
+		| 'TRANSFER'
+		| 'RETUR'
+		| 'PETTY CASH'
+		| 'P.PIUTANG'
+		| 'P.PIUTANG TRANSFER'
+		| 'ONGKIR';
 	lokasi: keyof typeof lokasiLabels;
 	tanggal: string;
 };
@@ -15,7 +22,14 @@ export type ItemOrGroup = Item | Item[];
 export type Row = {
 	keteranganTransaksi: string;
 	total: number | null;
-	tipe: 'TUNAI' | 'TRANSFER' | 'RETUR' | 'PETTY CASH' | 'P.PIUTANG' | 'P.PIUTANG TRANSFER';
+	tipe:
+		| 'TUNAI'
+		| 'TRANSFER'
+		| 'RETUR'
+		| 'PETTY CASH'
+		| 'P.PIUTANG'
+		| 'P.PIUTANG TRANSFER'
+		| 'ONGKIR';
 	lokasi: string;
 	tanggal: string;
 };
@@ -26,5 +40,6 @@ export const tipeList: Item['tipe'][] = [
 	'RETUR',
 	'PETTY CASH',
 	'P.PIUTANG',
-	'P.PIUTANG TRANSFER'
+	'P.PIUTANG TRANSFER',
+	'ONGKIR'
 ];

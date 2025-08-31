@@ -19,6 +19,13 @@
 	let errorMessage: string | null = null;
 	let voucherPengeluaranIndex: number[] = [];
 
+	let isEdited = false;
+
+	// Saat user ubah field → baru dianggap edit
+	function onInputChange() {
+		isEdited = true;
+	}
+
 	// Tambah item ke dalam grup
 	function tambahItemKeGrup(groupIndex: number) {
 		if (Array.isArray(inputs[groupIndex])) {
@@ -78,6 +85,7 @@
 	// Buat voucher (validasi + proses data)
 	function buatVoucher() {
 		errorMessage = null;
+		isEdited = false;
 
 		const isValid = inputs.every((entry) =>
 			Array.isArray(entry)
@@ -93,7 +101,7 @@
 		);
 
 		if (!isValid) {
-			errorMessage = 'Semua kolom wajib diisi.';
+			errorMessage = 'Semua kolom wajib diisi!';
 			showPreview = false;
 			rows = [];
 			return;
@@ -184,6 +192,7 @@
 								{updateItemInGroup}
 								{tambahItemKeGrup}
 								{hapusInput}
+								{onInputChange}
 							/>
 						{:else}
 							<InputItem
@@ -193,6 +202,7 @@
 								{lokasiList}
 								update={updateItem}
 								{hapusInput}
+								{onInputChange}
 							/>
 						{/if}
 					</div>
@@ -219,19 +229,31 @@
 						{errorMessage}
 					</span>
 				{/if}
+
+				{#if isEdited}
+					<p class="mt-2 text-sm font-medium text-blue-600">✏️ Ada data yang diedit</p>
+				{/if}
 			</div>
 
 			<!-- Tombol Aksi -->
 			<div class="mt-4 flex flex-wrap items-center gap-2">
 				<button
-					on:click={() => (inputs = tambahItem(inputs))}
+					on:click={() => {
+						inputs = tambahItem(inputs);
+						errorMessage = null;
+						isEdited = false;
+					}}
 					class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white shadow-sm ring-1 ring-blue-600/10 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-[0.99]"
 				>
 					➕ Satuan
 				</button>
 
 				<button
-					on:click={() => (inputs = tambahGrup(inputs))}
+					on:click={() => {
+						inputs = tambahGrup(inputs);
+						errorMessage = null;
+						isEdited = false;
+					}}
 					class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-white shadow-sm ring-1 ring-emerald-600/10 transition hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500 active:scale-[0.99]"
 				>
 					📦 Grup
@@ -251,7 +273,7 @@
 	</section>
 
 	<!-- SECTION: Preview (boleh diprint) -->
-	{#if showPreview}
+	{#if showPreview && inputs.length > 0}
 		<section class="mt-6 space-y-6">
 			<div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
 				<Rekap {inputs} />

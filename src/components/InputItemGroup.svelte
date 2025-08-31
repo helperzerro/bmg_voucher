@@ -18,6 +18,7 @@
 	) => void;
 	export let tambahItemKeGrup: (index: number) => void;
 	export let hapusInput: (index: number) => void;
+	export let onInputChange;
 
 	let dateInputEl: HTMLInputElement;
 
@@ -152,8 +153,10 @@
 				type="text"
 				placeholder="NAMA PERUSAHAAN / PELANGGAN"
 				value={groupItem.nama}
-				on:input={(e) =>
-					updateItemInGroup(idx, gidx, 'nama', (e.target! as HTMLInputElement).value)}
+				on:input={(e) => {
+					updateItemInGroup(idx, gidx, 'nama', (e.target! as HTMLInputElement).value);
+					onInputChange();
+				}}
 				class="w-80 rounded-r border border-gray-300 px-2 py-1 text-sm uppercase focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 			/>
 
@@ -179,6 +182,7 @@
 						} else {
 							updateItemInGroup(idx, gidx, 'jl', 'JL' + angka);
 						}
+						onInputChange();
 					}}
 					class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 				/>
@@ -203,6 +207,7 @@
 
 						// Format ulang tampilan (biar tetap ada titiknya)
 						target.value = formatRupiahString(raw);
+						onInputChange();
 					}}
 					class="w-28 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 				/>
@@ -217,6 +222,7 @@
 			on:change={(e) => {
 				const val = (e.target as HTMLSelectElement).value as Item['tipe'];
 				input.forEach((_, gidx) => updateItemInGroup(idx, gidx, 'tipe', val));
+				onInputChange();
 			}}
 			class="focus:ring-opacity-50 w-[185px] rounded-md border border-gray-300 px-3 py-[6px] text-sm shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		>
@@ -238,6 +244,7 @@
 			on:change={(e) => {
 				const val = (e.target as HTMLSelectElement).value as Item['lokasi'];
 				input.forEach((_, gidx) => updateItemInGroup(idx, gidx, 'lokasi', val));
+				onInputChange();
 			}}
 			class="mt-2 w-[90px] rounded-md border border-gray-300 px-3 py-[6px] text-sm shadow-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 		>
@@ -269,6 +276,9 @@
 						month: '2-digit',
 						year: 'numeric'
 					})}
+				on:change={(e) => {
+					onInputChange();
+				}}
 				class="rounded border border-gray-300 px-2 py-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 			/>
 
