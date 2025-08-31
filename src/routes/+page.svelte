@@ -92,11 +92,17 @@
 				? entry.every(
 						(item) =>
 							item.nama.trim() &&
-							(item.tipe === 'TUNAI' || item.tipe === 'PETTY CASH' || item.jl.trim()) &&
+							(item.tipe === 'TUNAI' ||
+								item.tipe === 'PETTY CASH' ||
+								item.tipe === 'ONGKIR' ||
+								item.jl.trim()) &&
 							item.harga !== null
 					)
 				: entry.nama.trim() &&
-					(entry.tipe === 'TUNAI' || entry.tipe === 'PETTY CASH' || entry.jl.trim()) &&
+					(entry.tipe === 'TUNAI' ||
+						entry.tipe === 'PETTY CASH' ||
+						entry.tipe === 'ONGKIR' ||
+						entry.jl.trim()) &&
 					entry.harga !== null
 		);
 
@@ -111,12 +117,21 @@
 			const items = Array.isArray(entry) ? entry : [entry];
 			return items
 				.filter(
-					(item) => item.nama && (item.tipe === 'TUNAI' || item.tipe === 'PETTY CASH' || item.jl)
+					(item) =>
+						item.nama &&
+						(item.tipe === 'TUNAI' ||
+							item.tipe === 'PETTY CASH' ||
+							item.tipe === 'ONGKIR' ||
+							item.jl)
 				)
 
 				.map((item) => ({
 					keteranganTransaksi:
-						item.tipe === 'TUNAI' || item.tipe === 'PETTY CASH' || !item.jl || item.jl === 'JL'
+						item.tipe === 'TUNAI' ||
+						item.tipe === 'PETTY CASH' ||
+						item.tipe === 'ONGKIR' ||
+						!item.jl ||
+						item.jl === 'JL'
 							? item.nama
 							: `${item.nama} (${item.jl})`,
 					total: item.harga,
@@ -231,7 +246,27 @@
 				{/if}
 
 				{#if isEdited}
-					<p class="mt-2 text-sm font-medium text-blue-600">✏️ Ada data yang diedit</p>
+					<span
+						class="inline-flex animate-pulse items-center gap-2 rounded-full bg-gradient-to-r from-sky-100
+               to-sky-200 px-4 py-1.5 text-sm font-medium text-sky-800
+               shadow-sm ring-1 ring-sky-300/60"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							class="h-4 w-4 animate-bounce text-sky-700"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M11 5h2M12 7v10m-7 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+							/>
+						</svg>
+						<span class="animate-fadeIn">Ada perubahan yang belum disimpan</span>
+					</span>
 				{/if}
 			</div>
 
