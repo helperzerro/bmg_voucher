@@ -127,7 +127,7 @@
 </div>
 
 <div class="flex flex-col gap-3" id="rekap">
-	{#each Object.entries(groupedByLokasi).filter( ([lokasi, tipeMap]) => Object.keys(tipeMap).some((t) => !['TUNAI', 'PETTY CASH'].includes(t)) ) as [lokasi, tipeMap]}
+	{#each Object.entries(groupedByLokasi).filter( ([lokasi, tipeMap]) => Object.keys(tipeMap).some((t) => !['TUNAI', 'PETTY CASH', 'PETTY CASH VB'].includes(t)) ) as [lokasi, tipeMap]}
 		<!-- id unik per lokasi untuk target print per lokasi -->
 		<section id={'rekap-' + lokasi} class="print:break-after-page">
 			<h2 class="mb-2 text-center font-[Calibri] text-[16px] font-bold uppercase">
@@ -139,7 +139,7 @@
 					<!-- Judul per lokasi -->
 					<div class="flex flex-col gap-3">
 						<!-- Loop tipe di dalam lokasi -->
-						{#each Object.entries(tipeMap).filter(([t]) => !['TUNAI', 'PETTY CASH', 'ONGKIR'].includes(t)) as [tipe, items]}
+						{#each Object.entries(tipeMap).filter(([t]) => !['TUNAI', 'PETTY CASH', 'ONGKIR', 'PETTY CASH VB'].includes(t)) as [tipe, items]}
 							<table class="w-full table-fixed border font-[Calibri] text-[12px] font-bold">
 								<colgroup>
 									<col class="w-[45px] print:w-[45px]" />

@@ -12,7 +12,8 @@ export type Item = {
 		| 'PETTY CASH'
 		| 'P.PIUTANG'
 		| 'P.PIUTANG TRANSFER'
-		| 'ONGKIR';
+		| 'ONGKIR'
+		| 'PETTY CASH VB';
 	lokasi: keyof typeof lokasiLabels;
 	tanggal: string;
 };
@@ -29,7 +30,8 @@ export type Row = {
 		| 'PETTY CASH'
 		| 'P.PIUTANG'
 		| 'P.PIUTANG TRANSFER'
-		| 'ONGKIR';
+		| 'ONGKIR'
+		| 'PETTY CASH VB';
 	lokasi: string;
 	tanggal: string;
 };
@@ -41,5 +43,6 @@ export const tipeList: Item['tipe'][] = [
 	'PETTY CASH',
 	'P.PIUTANG',
 	'P.PIUTANG TRANSFER',
-	'ONGKIR'
+	'ONGKIR',
+	'PETTY CASH VB'
 ];

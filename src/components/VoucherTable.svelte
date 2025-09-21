@@ -13,7 +13,8 @@
 			| 'PETTY CASH'
 			| 'ONGKIR'
 			| 'P.PIUTANG'
-			| 'P.PIUTANG TRANSFER';
+			| 'P.PIUTANG TRANSFER'
+			| 'PETTY CASH VB';
 		lokasi: string;
 		tanggal: string;
 	}[];
@@ -82,8 +83,15 @@
 			</tr>
 
 			<tr>
-				<td colspan="2" class="w-[200px] border pl-2">Diterima dari</td>
-				<td colspan="4" class="w-[400px] pl-2">{group[0].tipe}</td>
+				<td colspan="2" class="w-[200px] border pl-2">
+					{group[0].tipe === 'PETTY CASH' || group[0].tipe === 'RETUR'
+						? 'Dibayarkan'
+						: 'Diterima dari'}
+				</td>
+
+				<td colspan="4" class="w-[400px] pl-2"
+					>{group[0].tipe === 'PETTY CASH VB' ? 'PETTY CASH' : group[0].tipe}</td
+				>
 				<td colspan="2">
 					<div class="flex items-start">
 						<span class="min-w-[70px]">No. Giro</span>

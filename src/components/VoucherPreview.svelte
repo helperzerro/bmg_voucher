@@ -14,7 +14,8 @@
 			| 'PETTY CASH'
 			| 'ONGKIR'
 			| 'P.PIUTANG'
-			| 'P.PIUTANG TRANSFER';
+			| 'P.PIUTANG TRANSFER'
+			| 'PETTY CASH VB';
 		lokasi: string;
 		tanggal: string;
 	}[][];

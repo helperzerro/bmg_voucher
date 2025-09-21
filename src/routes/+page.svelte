@@ -30,13 +30,14 @@
 	function tambahItemKeGrup(groupIndex: number) {
 		if (Array.isArray(inputs[groupIndex])) {
 			const newGroup = [...(inputs[groupIndex] as Item[])];
+
 			newGroup.push({
 				nama: '',
 				jl: '',
 				harga: null,
-				tipe: 'TRANSFER',
-				lokasi: lokasiList[0],
-				tanggal: ''
+				tipe: newGroup[0].tipe,
+				lokasi: newGroup[0].lokasi,
+				tanggal: newGroup[0].tanggal
 			});
 			inputs[groupIndex] = newGroup;
 		}
@@ -95,6 +96,7 @@
 							(item.tipe === 'TUNAI' ||
 								item.tipe === 'PETTY CASH' ||
 								item.tipe === 'ONGKIR' ||
+								item.tipe === 'PETTY CASH VB' ||
 								item.jl.trim()) &&
 							item.harga !== null
 					)
@@ -102,6 +104,7 @@
 					(entry.tipe === 'TUNAI' ||
 						entry.tipe === 'PETTY CASH' ||
 						entry.tipe === 'ONGKIR' ||
+						entry.tipe === 'PETTY CASH VB' ||
 						entry.jl.trim()) &&
 					entry.harga !== null
 		);
@@ -122,6 +125,7 @@
 						(item.tipe === 'TUNAI' ||
 							item.tipe === 'PETTY CASH' ||
 							item.tipe === 'ONGKIR' ||
+							item.tipe === 'PETTY CASH VB' ||
 							item.jl)
 				)
 
@@ -129,6 +133,7 @@
 					keteranganTransaksi:
 						item.tipe === 'TUNAI' ||
 						item.tipe === 'PETTY CASH' ||
+						item.tipe === 'PETTY CASH VB' ||
 						item.tipe === 'ONGKIR' ||
 						!item.jl ||
 						item.jl === 'JL'
