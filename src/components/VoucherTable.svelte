@@ -121,31 +121,32 @@
 				<td class="w-[260px] border text-center" colspan="2">PERKIRAAN DIKREDIT</td>
 			</tr>
 
-			{#each Array(6) as _}
+			{#each Array(Math.floor(Math.max(0, 13 - group.length) / 2)) as _}
 				<tr>
-					<td colspan="4" class="w-[340px] border-x">&nbsp;</td>
-					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
-					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
+					<td colspan="4" class="w-[340px] border-r border-l">&nbsp;</td>
+					<td colspan="2" class="w-[260px] border-r border-l">&nbsp;</td>
+					<td colspan="2" class="w-[260px] border-r border-l">&nbsp;</td>
 				</tr>
 			{/each}
 
 			{#each group as row}
 				<tr>
-					<td class="w-[340px] border-x text-center uppercase" colspan="4"
+					<td class="w-[340px] border-r border-l text-center uppercase" colspan="4"
 						>{row.keteranganTransaksi}</td
 					>
-					<td class="w-[260px] border-x text-center" colspan="2"
+					<td class="w-[260px] border-r border-l text-center" colspan="2"
 						>{row.total?.toLocaleString('id-ID') ?? ''}</td
 					>
-					<td class="w-[260px] border-x text-center" colspan="2"></td>
+					<td class="w-[260px] border-r border-l text-center" colspan="2"></td>
 				</tr>
 			{/each}
 
-			{#each Array(6) as _}
+			<!-- Baris kosong bawah -->
+			{#each Array(Math.max(0, 13 - group.length) - Math.floor(Math.max(0, 13 - group.length) / 2)) as _}
 				<tr>
-					<td colspan="4" class="w-[340px] border-x">&nbsp;</td>
-					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
-					<td colspan="2" class="w-[260px] border-x">&nbsp;</td>
+					<td colspan="4" class="w-[340px] border-r border-l">&nbsp;</td>
+					<td colspan="2" class="w-[260px] border-r border-l">&nbsp;</td>
+					<td colspan="2" class="w-[260px] border-r border-l">&nbsp;</td>
 				</tr>
 			{/each}
 
@@ -157,24 +158,24 @@
 			</tr>
 
 			<tr>
-				<td class="w-[170px] border-x" colspan="2">&nbsp;</td>
-				<td class="w-[170px] border-x" colspan="2">&nbsp;</td>
-				<td class="w-[260px] border-x text-center" colspan="2">Diterima Oleh:</td>
-				<td class="w-[260px] border-x text-center" colspan="2">Disetor Oleh:</td>
+				<td class="w-[170px] border-r border-l" colspan="2">&nbsp;</td>
+				<td class="w-[170px] border-r border-l" colspan="2">&nbsp;</td>
+				<td class="w-[260px] border-r border-l text-center" colspan="2">Diterima Oleh:</td>
+				<td class="w-[260px] border-r border-l text-center" colspan="2">Disetor Oleh:</td>
 			</tr>
 
 			{#each Array(2) as _}
 				<tr>
-					<td class="w-[170px] border-x" colspan="2">&nbsp;</td>
-					<td class="w-[170px] border-x" colspan="2">&nbsp;</td>
-					<td class="w-[260px] border-x" colspan="2">&nbsp;</td>
+					<td class="w-[170px] border-r border-l" colspan="2">&nbsp;</td>
+					<td class="w-[170px] border-r border-l" colspan="2">&nbsp;</td>
+					<td class="w-[260px] border-r border-l" colspan="2">&nbsp;</td>
 				</tr>
 			{/each}
 
 			<tr>
-				<td class="w-[170px] border-x text-center" colspan="2">Direktur/Manager</td>
-				<td class="w-[170px] border-x" colspan="2">&nbsp;</td>
-				<td class="w-[260px] border-x" colspan="2">&nbsp;</td>
+				<td class="w-[170px] border-r border-l text-center" colspan="2">Direktur/Manager</td>
+				<td class="w-[170px] border-r border-l" colspan="2">&nbsp;</td>
+				<td class="w-[260px] border-r border-l" colspan="2">&nbsp;</td>
 			</tr>
 		</tbody>
 	</table>
