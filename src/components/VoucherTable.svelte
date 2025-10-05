@@ -49,13 +49,11 @@
 </button>
 
 <div id={'voucher-' + index} class="mt-1 overflow-x-auto rounded font-[Calibri]">
-	<table class="table-auto border-collapse">
-		<thead class="text-left">
-			<tr>
-				<th class="w-[850px] pl-2 text-[28px] font-bold" colspan="8">{group[0].lokasi}</th>
-			</tr>
-		</thead>
+	<div class=" text-left">
+		<div class="w-[850px] pl-2 text-[28px] font-bold">{group[0].lokasi}</div>
+	</div>
 
+	<table class="table-auto border-collapse border-l">
 		<tbody class="border text-[16px]">
 			<tr>
 				<td class="w-[600px] pl-2 text-[20px] font-bold" rowspan="2" colspan="6">

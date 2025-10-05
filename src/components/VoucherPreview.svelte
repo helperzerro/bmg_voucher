@@ -33,10 +33,10 @@
 
 	<button
 		on:click={handlePrintAll}
-		class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600
-	px-5 py-2.5 text-sm font-medium text-white shadow-md transition
-	hover:from-purple-700 hover:to-fuchsia-700
-	focus:outline-none active:scale-95 print:hidden"
+		class="inline-flex items-center gap-2 rounded-xl bg-purple-600 bg-gradient-to-r from-purple-600 to-fuchsia-600
+  px-5 py-2.5 text-sm font-medium text-white shadow-md transition
+  hover:from-purple-700 hover:to-fuchsia-700
+  focus:outline-none active:scale-95 print:hidden"
 	>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
