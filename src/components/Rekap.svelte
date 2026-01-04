@@ -3,6 +3,7 @@
 	import { printOnly } from '$lib/printUtils';
 	import { getLokasiLabel } from '$lib/lokasi';
 	import { formatRupiahString, unformatRupiah } from '$lib/formatRupiah';
+	import { formatJl } from '$lib/jl';
 
 	export let inputs: ItemOrGroup[];
 
@@ -145,7 +146,7 @@
 									<!-- TGL -->
 									<col />
 									<!-- NAMA -->
-									<col class="w-[60px] print:w-[60px]" />
+									<col class="w-[90px] print:w-[90px]" />
 									<!-- JL -->
 									<col class="w-[110px] print:w-[110px]" />
 									<!-- HARGA -->
@@ -171,7 +172,9 @@
 													</td>
 												{/if}
 												<td class="truncate border px-2 py-1 text-center uppercase">{item.nama}</td>
-												<td class="border px-2 py-1 text-center whitespace-nowrap">{item.jl}</td>
+												<td class="border px-2 py-1 text-center whitespace-nowrap"
+													>{formatJl(item)}</td
+												>
 												<td class="border px-2 py-1">
 													<div class="flex min-w-0 items-center gap-1 px-1">
 														<span class="pr-1">Rp</span>

@@ -33,6 +33,13 @@
 			}
 		});
 	});
+
+	function getJlPrefixByLokasi(lokasi: Item['lokasi']) {
+		const year = new Date().getFullYear().toString().slice(-2);
+
+		if (lokasi === 'BMG') return `BMG-${year}/i/`;
+		if (lokasi === 'ST2') return `ST2-${year}/i/`;
+	}
 </script>
 
 <!-- Header -->
@@ -86,23 +93,16 @@
 
 	<!-- JL -->
 	<div class="flex items-center">
-		<span class="rounded-l border border-r-0 border-gray-300 bg-gray-100 px-2 py-1 text-sm">JL</span
+		<span class="rounded-l border border-r-0 border-gray-300 bg-gray-100 px-2 py-1 text-sm"
+			>{getJlPrefixByLokasi(item.lokasi)}</span
 		>
 		<input
 			type="text"
 			inputmode="numeric"
-			pattern="[0-9]*"
-			placeholder="-"
-			value={item.jl.replace(/^JL/, '')}
-			on:keypress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
+			value={item.jl}
 			on:input={(e) => {
-				const angka = (e.target! as HTMLInputElement).value.replace(/\D/g, '');
-				const tipe = item.tipe?.toUpperCase();
-				if (angka === '' && (tipe === 'TUNAI' || tipe === 'PETTY CASH')) {
-					update(idx, 'jl', '');
-				} else {
-					update(idx, 'jl', 'JL' + angka);
-				}
+				const angka = (e.target as HTMLInputElement).value.replace(/\D/g, '');
+				update(idx, 'jl', angka);
 				onInputChange();
 			}}
 			class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"

@@ -1,7 +1,7 @@
 // src/lib/lokasi.ts
 export const lokasiLabels = {
 	// Kalau mau tambahin data baru tingal tambahkan disini
-	BMG2: 'PT. BAJA MULTI GEMILANG.',
+	BMG: 'PT. BAJA MULTI GEMILANG.',
 	ST2: 'TB. SINAR TERANG.'
 } as const;
 

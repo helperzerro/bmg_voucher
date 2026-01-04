@@ -24,30 +24,6 @@
 
 	onMount(() => {
 		if (input.length > 0) {
-			// Default ke hari ini jika belum di-set
-			if (!input[0].tanggal) {
-				const now = new Date();
-				const dd = String(now.getDate()).padStart(2, '0');
-				const mm = String(now.getMonth() + 1).padStart(2, '0');
-				const yyyy = now.getFullYear();
-				const todayStr = `${dd}/${mm}/${yyyy}`;
-				updateItemInGroup(idx, 0, 'tanggal', todayStr);
-			}
-
-			flatpickr(dateInputEl, {
-				dateFormat: 'd/m/Y',
-				defaultDate: input[0].tanggal,
-				onChange: (_, dateStr) => {
-					input.forEach((_, gidx) => {
-						updateItemInGroup(idx, gidx, 'tanggal', dateStr);
-					});
-				}
-			});
-		}
-	});
-
-	onMount(() => {
-		if (input.length > 0) {
 			if (!input[0].tanggal) {
 				const now = new Date();
 				const dd = String(now.getDate()).padStart(2, '0');
@@ -72,6 +48,13 @@
 			});
 		}
 	});
+
+	function getJlPrefixByLokasi(lokasi: Item['lokasi']) {
+		const year = new Date().getFullYear().toString().slice(-2);
+
+		if (lokasi === 'BMG') return `BMG-${year}/i/`;
+		if (lokasi === 'ST2') return `ST2-${year}/i/`;
+	}
 </script>
 
 <div class="mb-3 flex items-center gap-2">
@@ -162,29 +145,33 @@
 
 			<!-- JL -->
 			<div class="flex items-center">
-				<span class="rounded-l border border-r-0 border-gray-300 bg-gray-100 px-2 py-1 text-sm"
-					>JL</span
-				>
+				<span class="rounded-l border border-r-0 border-gray-300 bg-gray-100 px-2 py-1 text-sm">
+					{getJlPrefixByLokasi(groupItem.lokasi)}
+				</span>
+
 				<input
 					type="text"
 					inputmode="numeric"
 					pattern="[0-9]*"
 					placeholder="-"
-					value={groupItem.jl.replace(/^JL/, '')}
+					value={groupItem.jl}
 					on:keypress={(e) => {
 						if (!/[0-9]/.test(e.key)) e.preventDefault();
 					}}
 					on:input={(e) => {
-						const angka = (e.target! as HTMLInputElement).value.replace(/\D/g, '');
+						const angka = (e.target as HTMLInputElement).value.replace(/\D/g, '');
 						const tipe = groupItem.tipe?.toUpperCase();
+
 						if (angka === '' && (tipe === 'TUNAI' || tipe === 'PETTY CASH')) {
 							updateItemInGroup(idx, gidx, 'jl', '');
 						} else {
-							updateItemInGroup(idx, gidx, 'jl', 'JL' + angka);
+							updateItemInGroup(idx, gidx, 'jl', angka);
 						}
+
 						onInputChange();
 					}}
-					class="w-20 rounded-r border border-gray-300 px-2 py-1 text-right text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+					class="w-24 rounded-r border border-gray-300 px-2 py-1 text-right text-sm
+		       focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
 				/>
 			</div>
 
