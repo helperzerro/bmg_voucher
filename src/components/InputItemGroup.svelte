@@ -52,7 +52,7 @@
 	function getJlPrefixByLokasi(lokasi: Item['lokasi']) {
 		const year = new Date().getFullYear().toString().slice(-2);
 
-		if (lokasi === 'BMG') return `BMG-${year}/i/`;
+		if (lokasi === 'BMG') return `BMG.${year}/i/`;
 		if (lokasi === 'ST2') return `ST2-${year}/i/`;
 	}
 </script>

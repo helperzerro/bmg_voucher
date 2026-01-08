@@ -10,7 +10,7 @@ export function formatJl(item: Item) {
 
 	switch (item.lokasi) {
 		case 'BMG':
-			return `BMG-${year}/i/${angka}`;
+			return `BMG.${year}/i/${angka}`;
 		case 'ST2':
 			return `ST2-${year}/i/${angka}`;
 		default:
